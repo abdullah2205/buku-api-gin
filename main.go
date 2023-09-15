@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
     "log"
     "net/http"
 	"time"
@@ -43,68 +42,88 @@ func main() {
 }
 
 func IndexBuku(c *gin.Context) {
-    var books []bukus
-    db.Find(&books)
+    var buku []bukus
+    db.Find(&buku)
 
-    if len(books) == 0 {
-        c.JSON(http.StatusNotFound, gin.H{"message": "Data tidak ditemukan"})
+    if len(buku) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
         return
     }
 
-    c.JSON(http.StatusOK, books)
+    list_buku := gin.H{
+        "_pesan": "List Buku",
+        "data": buku,
+    }
+
+    c.JSON(http.StatusOK, list_buku)
 }
 
 func StoreBuku(c *gin.Context) {
-    var book bukus
+    var buku bukus
 
-    c.BindJSON(&book)
-    db.Create(&book)
+    c.BindJSON(&buku)
+    db.Create(&buku)
 
-    c.JSON(http.StatusCreated, book)
+    tambah_buku := gin.H{
+        "_pesan": "Buku berhasil ditambah",
+        "data": buku,
+    }
+
+    c.JSON(http.StatusCreated, tambah_buku)
 }
 
 func ShowBuku(c *gin.Context) {
     id := c.Param("id")
-    var book bukus
+    var buku bukus
     
-    if err := db.Where("id = ?", id).First(&book).Error; err != nil {
-        handleError(c, err)
+    if err := db.Where("id = ?", id).First(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
         return
     }
 
-    c.JSON(http.StatusOK, book)
+    data_buku := gin.H{
+        "_pesan": "Data Buku",
+        "data": buku,
+    }
+
+    c.JSON(http.StatusOK, data_buku)
 }
 
 func UpdateBuku(c *gin.Context) {
     id := c.Param("id")
-    var book bukus
+    var buku bukus
 
-    if err := db.Where("id = ?", id).First(&book).Error; err != nil {
-        handleError(c, err)
+    if err := db.Where("id = ?", id).First(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
         return
     }
 
-    c.BindJSON(&book)
-    db.Save(&book)
+    c.BindJSON(&buku)
+    db.Save(&buku)
+    //berikan validator nanti nya
+    ubah_buku := gin.H{
+        "_pesan": "Buku berhasil diubah",
+        "data": buku,
+    }
 
-    c.JSON(http.StatusOK, book)
+    c.JSON(http.StatusOK, ubah_buku)
 }
 
 func DestroyBuku(c *gin.Context) {
     id := c.Param("id")
-    var book bukus
+    var buku bukus
 
-    if err := db.Where("id = ?", id).First(&book).Error; err != nil {
-        handleError(c, err)
+    if err := db.Where("id = ?", id).First(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
         return
     }
 
-    db.Where("id = ?", id).Delete(&book)
-    
-    c.JSON(http.StatusOK, gin.H{"id #" + id: "deleted"})
-}
+    db.Where("id = ?", id).Delete(&buku)
 
-func handleError(c *gin.Context, err error) {
-    fmt.Println("Kesalahan:", err)
-    c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+    hapus_buku := gin.H{
+        "_pesan": "Buku berhasil dihapus cik",
+        "data": buku,
+    }
+    
+    c.JSON(http.StatusOK, hapus_buku)
 }
