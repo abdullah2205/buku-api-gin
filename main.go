@@ -121,7 +121,7 @@ func DestroyBuku(c *gin.Context) {
     db.Where("id = ?", id).Delete(&buku)
 
     hapus_buku := gin.H{
-        "_pesan": "Buku berhasil dihapus cik",
+        "_pesan": "Buku berhasil dihapus",
         "data": buku,
     }
     
