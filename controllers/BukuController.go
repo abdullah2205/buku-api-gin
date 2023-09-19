@@ -13,9 +13,7 @@ func IndexBuku(c *gin.Context) {
     var buku []models.Bukus
 
     if err := config.DB.Find(&buku).Error; err != nil {
-        errorMsg := err.Error()
-
-        c.JSON(http.StatusInternalServerError, gin.H{"error": errorMsg})
+        c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
         return
     }
 
@@ -36,7 +34,11 @@ func StoreBuku(c *gin.Context) {
     var buku models.Bukus
 
     c.BindJSON(&buku)
-    config.DB.Create(&buku)
+
+    if err := config.DB.Create(&buku).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
+        return
+    }
 
     tambah_buku := gin.H{
         "_pesan": "Buku berhasil ditambah",
@@ -51,7 +53,7 @@ func ShowBuku(c *gin.Context) {
     var buku models.Bukus
     
     if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
+        c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
 
@@ -68,12 +70,17 @@ func UpdateBuku(c *gin.Context) {
     var buku models.Bukus
 
     if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
+        c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
 
     c.BindJSON(&buku)
-    config.DB.Save(&buku)
+
+    if err := config.DB.Save(&buku).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
+        return
+    }
+
     //berikan validator nanti nya
     ubah_buku := gin.H{
         "_pesan": "Buku berhasil diubah",
@@ -88,11 +95,14 @@ func DestroyBuku(c *gin.Context) {
     var buku models.Bukus
 
     if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
+        c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
 
-    config.DB.Where("id = ?", id).Delete(&buku)
+    if err := config.DB.Where("id = ?", id).Delete(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
+        return   
+    }
 
     hapus_buku := gin.H{
         "_pesan": "Buku berhasil dihapus",
