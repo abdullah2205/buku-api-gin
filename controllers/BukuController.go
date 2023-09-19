@@ -82,3 +82,22 @@ func UpdateBuku(c *gin.Context) {
 
     c.JSON(http.StatusOK, ubah_buku)
 }
+
+func DestroyBuku(c *gin.Context) {
+    id := c.Param("id")
+    var buku models.Bukus
+
+    if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
+        return
+    }
+
+    config.DB.Where("id = ?", id).Delete(&buku)
+
+    hapus_buku := gin.H{
+        "_pesan": "Buku berhasil dihapus",
+        "data": buku,
+    }
+    
+    c.JSON(http.StatusOK, hapus_buku)
+}

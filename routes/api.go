@@ -11,5 +11,5 @@ func SetupRoutes(router *gin.Engine) {
 	router.POST("/api/buku", controllers.StoreBuku)
 	router.GET("/api/buku/:id", controllers.ShowBuku)
 	router.PUT("/api/buku/:id", controllers.UpdateBuku)
-	// router.DELETE("/api/buku/:id", DestroyBuku)
+	router.DELETE("/api/buku/:id", controllers.DestroyBuku)
 }
