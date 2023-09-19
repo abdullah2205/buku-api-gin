@@ -62,3 +62,23 @@ func ShowBuku(c *gin.Context) {
 
     c.JSON(http.StatusOK, data_buku)
 }
+
+func UpdateBuku(c *gin.Context) {
+    id := c.Param("id")
+    var buku models.Bukus
+
+    if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"pesan": "Buku tidak ditemukan"})
+        return
+    }
+
+    c.BindJSON(&buku)
+    config.DB.Save(&buku)
+    //berikan validator nanti nya
+    ubah_buku := gin.H{
+        "_pesan": "Buku berhasil diubah",
+        "data": buku,
+    }
+
+    c.JSON(http.StatusOK, ubah_buku)
+}
