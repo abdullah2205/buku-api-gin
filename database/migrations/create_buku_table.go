@@ -1,22 +1,21 @@
+// bukumigrate.go
 package main
 
 import (
     "log"
-    "github.com/gin-gonic/gin"
     _ "github.com/jinzhu/gorm/dialects/mysql"
-
 	"buku-api-gin/config"
-	"buku-api-gin/routes"
+	"buku-api-gin/models"
 )
 
 func main() {
-	_, err := config.InitDatabase()
+    _, err := config.InitDatabase()
     if err != nil {
         log.Fatal(err)
     }
     defer config.DB.Close()
 
-    router := gin.Default()
-	routes.SetupRoutes(router)
-    router.Run(":8080")
+    config.DB.AutoMigrate(&models.Bukus{})
+
+    log.Println("Migrasi tabel buku selesai")
 }
