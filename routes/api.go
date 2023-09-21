@@ -10,12 +10,14 @@ func SetupRoutes(router *gin.Engine) {
 	router.POST("/api/register", controllers.Register)
     router.POST("/api/login", controllers.Login)
 
-	//get user
-	router.GET("/api/buku", controllers.AuthMiddleware(), controllers.IndexBuku)
-	router.POST("/api/buku", controllers.StoreBuku)
-	router.GET("/api/buku/:id", controllers.ShowBuku)
-	router.PUT("/api/buku/:id", controllers.UpdateBuku)
-	router.DELETE("/api/buku/:id", controllers.DestroyBuku)
+	auth := router.Group("/api")
+	auth.Use(controllers.AuthMiddleware())
+
+	auth.GET("/buku", controllers.IndexBuku)
+	auth.POST("/buku", controllers.StoreBuku)
+	auth.GET("/buku/:id", controllers.ShowBuku)
+	auth.PUT("/buku/:id", controllers.UpdateBuku)
+	auth.DELETE("/buku/:id", controllers.DestroyBuku)
 
 	//logout
 }
