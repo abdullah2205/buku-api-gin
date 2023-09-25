@@ -71,13 +71,13 @@ func Login(c *gin.Context) {
         return
     }
 
-    // Periksa password dengan hash yang ada di database
     if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"kesalahan": err.Error()})
         return
     }
 
-    token, err := GenerateJWTToken(input.Email)
+    token, err := GenerateJWTToken(fmt.Sprint(user.ID)) //kirim ke generate
+
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
         return
@@ -97,12 +97,12 @@ var (
 	secretKey = []byte("ini_kunci")
 )
 
-func GenerateJWTToken(username string) (string, error) {
-	// Buat token dengan waktu kadaluwarsa 1 jam (sesuaikan sesuai kebutuhan Anda)
+func GenerateJWTToken(userID string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
+
 	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = username
-	claims["exp"] = time.Now().Add(time.Minute * 5).Unix()
+	claims["user_id"] = userID
+	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
@@ -117,7 +117,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := c.GetHeader("Authorization")
 
         if tokenString == "" {
-			// Header "Authorization" kosong, Anda dapat mengembalikan token kosong atau respons Unauthorized.
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token not Found"})
 			c.Abort()
 			return
@@ -133,6 +132,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+        claims, _ := token.Claims.(jwt.MapClaims)
+        c.Set("user_id", claims["user_id"])
 
 		c.Next()
 	}
