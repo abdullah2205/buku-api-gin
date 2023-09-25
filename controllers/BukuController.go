@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"net/http"
-    
+    "strconv"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
@@ -34,10 +35,19 @@ func IndexBuku(c *gin.Context) {
 }
 
 func StoreBuku(c *gin.Context) {
+    userID, _ := c.Get("user_id")
+
     var buku models.Bukus
 
-    c.BindJSON(&buku)
+    userIDUint, _ := strconv.ParseUint(userID.(string), 10, 64)
 
+    buku.UserID = userIDUint
+
+    if err := c.BindJSON(&buku); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"kesalahan": err.Error()})
+        return
+    }
+    
     if err := config.DB.Create(&buku).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
         return
@@ -71,22 +81,26 @@ func ShowBuku(c *gin.Context) {
 }
 
 func UpdateBuku(c *gin.Context) {
+    userID, _ := c.Get("user_id")
+
     id := c.Param("id")
     var buku models.Bukus
 
-    if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
+    if err := config.DB.Where("id = ?", id).Where("user_id = ?", userID).First(&buku).Error; err != nil {
         c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
 
-    c.BindJSON(&buku)
+    if err := c.BindJSON(&buku); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"kesalahan": err.Error()})
+        return
+    }
 
     if err := config.DB.Save(&buku).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
         return
     }
 
-    //berikan validator nanti nya
     ubah_buku := gin.H{
         "_pesan": "Buku berhasil diubah",
         "data": buku,
@@ -96,10 +110,12 @@ func UpdateBuku(c *gin.Context) {
 }
 
 func DestroyBuku(c *gin.Context) {
+    userID, _ := c.Get("user_id")
+
     id := c.Param("id")
     var buku models.Bukus
 
-    if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
+    if err := config.DB.Where("id = ?", id).Where("user_id = ?", userID).First(&buku).Error; err != nil {
         c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
