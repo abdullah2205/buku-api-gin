@@ -2,17 +2,20 @@ package controllers
 
 import (
 	"net/http"
+    
 	"github.com/gin-gonic/gin"
-    _ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"buku-api-gin/config"
 	"buku-api-gin/models"
 )
 
 func IndexBuku(c *gin.Context) {
+    userID, _ := c.Get("user_id")
+
     var buku []models.Bukus
 
-    if err := config.DB.Find(&buku).Error; err != nil {
+    if err := config.DB.Where("user_id = ?", userID).Find(&buku).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
         return
     }
@@ -49,10 +52,12 @@ func StoreBuku(c *gin.Context) {
 }
 
 func ShowBuku(c *gin.Context) {
+    userID, _ := c.Get("user_id")
+
     id := c.Param("id")
     var buku models.Bukus
     
-    if err := config.DB.Where("id = ?", id).First(&buku).Error; err != nil {
+    if err := config.DB.Where("id = ?", id).Where("user_id = ?", userID).First(&buku).Error; err != nil {
         c.JSON(http.StatusNotFound, gin.H{"kesalahan": err.Error()})
         return
     }
