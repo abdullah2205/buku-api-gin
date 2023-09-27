@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-    "strconv"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -14,11 +14,21 @@ import (
 func IndexBuku(c *gin.Context) {
     userID, _ := c.Get("user_id")
 
+    searchQuery := c.DefaultQuery("search", "") //
+
     var buku []models.Bukus
 
-    if err := config.DB.Where("user_id = ?", userID).Find(&buku).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
-        return
+    
+    if searchQuery != "" {
+        if err := config.DB.Where("user_id = ?", userID).Where("judul LIKE ?", "%"+searchQuery+"%").Find(&buku).Error; err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
+            return
+        }
+    } else {
+        if err := config.DB.Where("user_id = ?", userID).Find(&buku).Error; err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"kesalahan": err.Error()})
+            return
+        }
     }
 
     if len(buku) == 0 {
