@@ -18,5 +18,5 @@ func main() {
 
     router := gin.Default()
 	routes.SetupRoutes(router)
-    router.Run(":8080")
+    router.Run(":8000")
 }

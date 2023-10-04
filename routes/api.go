@@ -11,7 +11,7 @@ import (
 func SetupRoutes(router *gin.Engine) {
 	// Membuat instance middleware CORS
 	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowOrigins = []string{"http://localhost:8080"} // Ganti dengan asal yang sesuai
+	corsConfig.AllowOrigins = []string{"http://localhost:8080", "http://192.168.1.15:8080"}
 	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	corsConfig.AllowHeaders = []string{"Content-Type", "Authorization"}
 
