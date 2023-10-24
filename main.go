@@ -20,3 +20,10 @@ func main() {
 	routes.SetupRoutes(router)
     router.Run(":8080")
 }
+
+
+
+//tambah ini aja
+
+
+//lagi
